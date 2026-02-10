@@ -6,6 +6,7 @@ import AddCar from '../pages/AddCar';
 import MyListings from '../pages/MyListings';
 import MyBookings from '../pages/MyBookings';
 import BrowseCars from '../pages/BrowseCars';
+import PrivateRoute from "../auth/PrivateRoute";
 
 
 export const router = createBrowserRouter([
@@ -19,17 +20,30 @@ export const router = createBrowserRouter([
         Component:Home,
       },
       {
-         path:"/addCar",
-        Component:AddCar,
-      },
-       {
-         path:"/myListings",
-        Component:MyListings,
-      },
-       {
-         path:"/myBooking",
-        Component:MyBookings,
-      },
+  path: "/addCar",
+  element: (
+    <PrivateRoute>
+      <AddCar />
+    </PrivateRoute>
+  ),
+},
+{
+  path: "/myListings",
+  element: (
+    <PrivateRoute>
+      <MyListings />
+    </PrivateRoute>
+  ),
+},
+{
+  path: "/myBookings",
+  element: (
+    <PrivateRoute>
+      <MyBookings />
+    </PrivateRoute>
+  ),
+},
+
        {
          path:"/browseCars",
         Component:BrowseCars,

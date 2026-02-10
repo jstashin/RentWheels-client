@@ -1,93 +1,126 @@
-import React from 'react';
-import { FaCar } from "react-icons/fa";
-import { Link, NavLink } from 'react-router';
-import logoImg from '/logo.jpg'
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import toast from "react-hot-toast";
+import useAuth from "../hooks/useAuth";
 
-const Header = () => {
-  const links = (
-    <>
-      <li>
-        <NavLink to="/" className={({ isActive }) => isActive ? "text-fuchsia-600 font-bold" : ""}
-        > Home</NavLink></li>
-      <li>
-        <NavLink 
-          to="/addCar"
-          className={({ isActive }) => isActive ? "text-fuchsia-600 font-bold" : ""}
-        >
-          Add Car
-        </NavLink>
-      </li>
-      <li>
-        <NavLink 
-          to="/myListings"
-          className={({ isActive }) => isActive ? "text-fuchsia-600 font-bold" : ""}
-        >
-          My listings
-        </NavLink>
-      </li>
-      <li>
-        <NavLink 
-          to="/myBooking"
-          className={({ isActive }) => isActive ? "text-fuchsia-600 font-bold" : ""}
-        >
-          My Bookings
-        </NavLink>
-      </li>
-      <li>
-        <NavLink 
-          to="/browseCars"
-          className={({ isActive }) => isActive ? "text-fuchsia-600 font-bold" : ""}
-        >
-          Browse Cars
-        </NavLink>
-      </li>
-    </>
-  );
+const navClass = ({ isActive }) =>
+  isActive
+    ? "text-black font-semibold"
+    : "text-gray-600 hover:text-black";
+
+export default function Header() {
+  const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  // বাইরে click করলে dropdown বন্ধ
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out ✅");
+      setOpen(false);
+      navigate("/");
+    } catch {
+      toast.error("Logout failed");
+    }
+  };
 
   return (
-    <div className="navbar bg-base-100 shadow-sm">
-<div className="navbar-start">
-  
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+    <header className="border-b bg-white sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Logo + Name */}
+         <Link to="/" className="flex items-center gap-2">
+          <img
+            src="/logo.jpg"
+            alt="RentWheels logo"
+            className="h-10 w-10 rounded-xl object-cover"
+          />
+          <span className="text-xl font-bold">RentWheels</span>
+        </Link>
+
+        {/* Nav Links */}
+        <nav className="hidden md:flex items-center gap-6">
+          <NavLink to="/" className={navClass}>Home</NavLink>
+          <NavLink to="/browseCars" className={navClass}>Browse Cars</NavLink>
+
+          {/* Private Routes links (visible, but route guard will protect) */}
+          <NavLink to="/addCar" className={navClass}>Add Car</NavLink>
+          <NavLink to="/myListings" className={navClass}>My Listings</NavLink>
+          <NavLink to="/myBookings" className={navClass}>My Bookings</NavLink>
+        </nav>
+
+        {/* Right side: Login OR Profile */}
+        {!user ? (
+          <div className="flex items-center gap-2">
+            <Link
+              to="/login"
+              className="px-4 py-2 rounded-xl bg-black text-white"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
-            </svg>
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="px-4 py-2 rounded-xl border"
+            >
+              Signup
+            </Link>
           </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
-            {links}
-          </ul>
-        </div>
+        ) : (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setOpen(!open)}
+              className="h-10 w-10 rounded-full overflow-hidden border"
+              title="Profile"
+            >
+              <img
+                src={user.photoURL || "https://i.ibb.co/2kRZg6b/user.png"}
+                alt="user"
+                className="h-full w-full object-cover"
+              />
+            </button>
 
-        
-        <div className="flex items-center">
-          <Link to="/" className="flex items-center">
-            <span className='text-2xl text-fuchsia-900 font-bold'><img src={logoImg} className='w-20'></img></span>
-            <h1 className="text-2xl bg-gradient-to-r from-[#8B5CF6] to-[#A855F7] bg-clip-text text-transparent font-bold">
-  RentWheels
-</h1>
+            {open && (
+              <div className="absolute right-0 mt-2 w-64 rounded-2xl border bg-white shadow-lg p-3">
+                <p className="font-semibold text-sm">
+                  {user.displayName || "User"}
+                </p>
+                <p className="text-xs text-gray-600 break-all">
+                  {user.email}
+                </p>
 
-          </Link>
-        </div>
+                <button
+                  onClick={handleLogout}
+                  className="mt-3 w-full px-3 py-2 rounded-xl bg-gray-900 text-white"
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 gap-3">
-          {links}
-        </ul>
+      {/* Mobile menu (simple) */}
+      <div className="md:hidden border-t">
+        <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap gap-3 text-sm">
+          <NavLink to="/" className={navClass}>Home</NavLink>
+          <NavLink to="/browseCars" className={navClass}>Browse Cars</NavLink>
+          <NavLink to="/addCar" className={navClass}>Add Car</NavLink>
+          <NavLink to="/myListings" className={navClass}>My Listings</NavLink>
+          <NavLink to="/myBookings" className={navClass}>My Bookings</NavLink>
+        </div>
       </div>
-    </div>
+    </header>
   );
-};
-
-export default Header;
+}

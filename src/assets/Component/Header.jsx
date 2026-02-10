@@ -54,10 +54,14 @@ export default function Header() {
           <NavLink to="/" className={navClass}>Home</NavLink>
           <NavLink to="/browseCars" className={navClass}>Browse Cars</NavLink>
 
-          {/* Private Routes links (visible, but route guard will protect) */}
-          <NavLink to="/addCar" className={navClass}>Add Car</NavLink>
-          <NavLink to="/myListings" className={navClass}>My Listings</NavLink>
-          <NavLink to="/myBookings" className={navClass}>My Bookings</NavLink>
+       {user && (
+  <>
+    <NavLink to="/addCar" className={navClass}>Add Car</NavLink>
+    <NavLink to="/myListings" className={navClass}>My Listings</NavLink>
+    <NavLink to="/myBookings" className={navClass}>My Bookings</NavLink>
+  </>
+)}
+
         </nav>
 
         {/* Right side: Login OR Profile */}

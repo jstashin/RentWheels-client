@@ -2,12 +2,22 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import useAuth from "../hooks/useAuth";
+import { useEffect } from "react";
+
 
 export default function Login() {
   const { loginUser, googleLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || "/";
+  const { user } = useAuth();
+
+useEffect(() => {
+  if (user) {
+    navigate("/", { replace: true });
+  }
+}, [user, navigate]);
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

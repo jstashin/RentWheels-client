@@ -1,19 +1,17 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axiosPublic from "../../assets/axiosPublic";
 
 export default function FeaturedCars() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // তোমার server local হলে:
-  // const baseURL = "http://localhost:3000";
-  const baseURL = "http://localhost:3000";
-
   useEffect(() => {
     const load = async () => {
       try {
-        const { data } = await axios.get(`${baseURL}/cars/latest`);
+        const { data } = await axiosPublic.get("/cars", {
+          params: { sort: "newest", limit: 6 },
+        });
         setCars(data);
       } catch (e) {
         console.error(e);
@@ -27,7 +25,7 @@ export default function FeaturedCars() {
   if (loading) {
     return (
       <div className="py-14 flex justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-black"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-black" />
       </div>
     );
   }
@@ -70,7 +68,7 @@ export default function FeaturedCars() {
                   {car.name}
                 </h3>
                 <span
-                  className={`text-xs px-2 py-1 rounded-full ${
+                  className={`text-xs px-2 py-1 rounded-full capitalize ${
                     car.status === "booked"
                       ? "bg-gray-200 text-gray-700"
                       : "bg-green-100 text-green-700"
@@ -81,15 +79,17 @@ export default function FeaturedCars() {
               </div>
 
               <p className="mt-2 text-sm text-gray-600">
-                <span className="font-semibold">${car.rentPricePerDay}</span>{" "}
-                / day • <span className="capitalize">{car.category}</span>
+                <span className="font-semibold">${car.rentPricePerDay}</span> / day
+                • <span className="capitalize">{car.category}</span>
               </p>
 
               <p className="mt-1 text-sm text-gray-500">
-                Provider: <span className="text-gray-700">{car.providerName}</span>
+                Provider:{" "}
+                <span className="text-gray-700">{car.providerName}</span>
               </p>
 
               <div className="mt-4">
+                {/* Car Details route: /cars/:id (Private) */}
                 <Link
                   to={`/cars/${car._id}`}
                   className="inline-block w-full text-center px-4 py-2 rounded-xl bg-gray-900 text-white hover:bg-black text-sm font-semibold"
